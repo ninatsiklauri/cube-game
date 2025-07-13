@@ -28,8 +28,9 @@ import { Application } from "pixi.js";
     ball.drawCircle(0, 0, radius);
     ball.endFill();
 
-    ball.x = Math.random() * app.screen.width;
-    ball.y = Math.random() * app.screen.height;
+    ball.x = radius + Math.random() * (app.screen.width - 2 * radius);
+    ball.y = radius + Math.random() * (app.screen.height - 2 * radius);
+
     ball.vx = (Math.random() - 0.5) * 10;
     ball.vy = (Math.random() - 0.5) * 10;
     ball.radius = radius;
