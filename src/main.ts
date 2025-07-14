@@ -54,7 +54,7 @@ import { Application } from "pixi.js";
     app.stage.removeChildren();
     scoreEl.textContent = "Score: 0";
     levelEl.textContent = "Level: 1";
-    timerEl.textContent = "Time: 30s";
+    timerEl.textContent = "Time: 60s";
 
     isOnStartScreen = true;
 
@@ -191,7 +191,7 @@ import { Application } from "pixi.js";
       diffColor: 0,
       oddIndex: 0,
       score: 0,
-      timeLeft: 30,
+      timeLeft: 60,
       isPlaying: true,
     };
     currentState.diffColor = getDifferentColor(currentState.baseColor);
