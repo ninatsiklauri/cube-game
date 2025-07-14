@@ -37,11 +37,16 @@ import { Application } from "pixi.js";
     return Math.floor(Math.random() * 0xffffff);
   }
 
-  function getDifferentColor(base: number): number {
-    const lighten = 20;
+  function getDifferentColor(base: number, difficulty: number): number {
+    const maxLighten = 60;
+    const minLighten = 4;
+    const lighten = Math.max(minLighten, maxLighten - difficulty * 1.5);
+
+
     const r = Math.round(Math.min(((base >> 16) & 0xff) + lighten, 255));
     const g = Math.round(Math.min(((base >> 8) & 0xff) + lighten, 255));
     const b = Math.round(Math.min((base & 0xff) + lighten, 255));
+
     return (r << 16) | (g << 8) | b;
   }
   function updateUI() {
@@ -148,7 +153,7 @@ import { Application } from "pixi.js";
     const level = currentState.level + 1;
     const gridSize = Math.min(2 + Math.floor(level / 3), 8);
     const baseColor = generateBaseColor();
-    const diffColor = getDifferentColor(baseColor);
+    const diffColor = getDifferentColor(baseColor, level);
     const oddIndex = Math.floor(Math.random() * (gridSize * gridSize));
 
     currentState = {
@@ -194,7 +199,12 @@ import { Application } from "pixi.js";
       timeLeft: 60,
       isPlaying: true,
     };
-    currentState.diffColor = getDifferentColor(currentState.baseColor);
+    const difficulty = Math.min(currentState.level, 25);
+    currentState.diffColor = getDifferentColor(
+      currentState.baseColor,
+      difficulty,
+    );
+
     currentState.oddIndex = Math.floor(
       Math.random() * currentState.gridSize ** 2,
     );
