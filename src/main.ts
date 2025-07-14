@@ -42,7 +42,6 @@ import { Application } from "pixi.js";
     const minLighten = 4;
     const lighten = Math.max(minLighten, maxLighten - difficulty * 1.5);
 
-
     const r = Math.round(Math.min(((base >> 16) & 0xff) + lighten, 255));
     const g = Math.round(Math.min(((base >> 8) & 0xff) + lighten, 255));
     const b = Math.round(Math.min((base & 0xff) + lighten, 255));
