@@ -17,6 +17,7 @@ body {
 
 #game-ui {
     width: 500px;
+    max-width: 95vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -30,8 +31,41 @@ body {
 }
 
 #pixi-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#pixi-container canvas {
+    width: 100% !important;
+    height: auto !important;
+    display: block;
+}
+
+@media (max-width: 600px) {
+    #game-ui {
+        width: 100%;
+        font-size: 16px;
+        padding: 8px 8px 4px 8px;
+        margin-bottom: 6px;
+    }
+
+    #pixi-container {
+        padding: 0;
+        border-radius: 0;
+        box-shadow: none;
+        margin: 0 8px;
+        max-width: none;
+    }
+
+    body {
+        background-color: #F06060;
+    }
 }
