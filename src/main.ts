@@ -38,10 +38,12 @@ import { Application } from "pixi.js";
   }
 
   function getDifferentColor(base: number): number {
-    const offset = 0x1010 * 10;
-    return base + offset;
+    const lighten = 20;
+    const r = Math.round(Math.min(((base >> 16) & 0xff) + lighten, 255));
+    const g = Math.round(Math.min(((base >> 8) & 0xff) + lighten, 255));
+    const b = Math.round(Math.min((base & 0xff) + lighten, 255));
+    return (r << 16) | (g << 8) | b;
   }
-
   function updateUI() {
     scoreEl.textContent = `Score: ${currentState.score}`;
     levelEl.textContent = `Level: ${currentState.level}`;
@@ -103,6 +105,7 @@ import { Application } from "pixi.js";
 
   function renderGrid(state: GameState): void {
     if (isOnStartScreen) return;
+
     const cubeSize = Math.min(
       (CANVAS_WIDTH - (state.gridSize + 1) * cubePadding) / state.gridSize,
       (CANVAS_HEIGHT - (state.gridSize + 1) * cubePadding) / state.gridSize,
@@ -111,17 +114,23 @@ import { Application } from "pixi.js";
     const startY = cubePadding;
 
     for (let i = 0; i < state.gridSize ** 2; i++) {
+      const isOdd = i === state.oddIndex;
+      const color = isOdd ? state.diffColor : state.baseColor;
+
+      const x = startX + (i % state.gridSize) * (cubeSize + cubePadding);
+      const y =
+        startY + Math.floor(i / state.gridSize) * (cubeSize + cubePadding);
+
       const box = new PIXI.Graphics();
-      const color = i === state.oddIndex ? state.diffColor : state.baseColor;
-      box.beginFill(color);
+      box.beginFill(color, 1);
       box.drawRoundedRect(0, 0, cubeSize, cubeSize, 8);
       box.endFill();
 
-      box.x = startX + (i % state.gridSize) * (cubeSize + cubePadding);
-      box.y = startY + Math.floor(i / state.gridSize) * (cubeSize + cubePadding);
-
+      box.x = x;
+      box.y = y;
       box.interactive = true;
-      box.on("pointerdown", () => handleClick(i === state.oddIndex));
+      box.on("pointerdown", () => handleClick(isOdd));
+
       app.stage.addChild(box);
     }
 
@@ -133,6 +142,7 @@ import { Application } from "pixi.js";
       }
     }
   }
+
   function nextLevel(): void {
     app.stage.removeChildren();
     const level = currentState.level + 1;
@@ -140,7 +150,7 @@ import { Application } from "pixi.js";
     const baseColor = generateBaseColor();
     const diffColor = getDifferentColor(baseColor);
     const oddIndex = Math.floor(Math.random() * (gridSize * gridSize));
-  
+
     currentState = {
       ...currentState,
       level,
@@ -151,11 +161,10 @@ import { Application } from "pixi.js";
       score: currentState.score + 1,
       isPlaying: true,
     };
-  
+
     updateUI();
     renderGrid(currentState);
   }
-  
 
   function startTimer(): void {
     if (gameTimer) {
