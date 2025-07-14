@@ -2,16 +2,22 @@ import * as PIXI from "pixi.js";
 import { Application } from "pixi.js";
 
 (async () => {
-  // Create a new application
+  const CANVAS_WIDTH = 500;
+  const CANVAS_HEIGHT = 496;
+  const cubePadding = 5;
   const app = new Application();
 
-  // Initialize the application
-  await app.init({ background: "#ffffff", width: 700, height: 700 });
+  await app.init({
+    background: "#ffffff",
+    width: CANVAS_WIDTH,
+    height: CANVAS_HEIGHT,
+  });
 
-  // Append the application canvas to the document body
   document.getElementById("pixi-container")!.appendChild(app.canvas);
 
-  const padding = 10;
+  const scoreEl = document.getElementById("score")!;
+  const levelEl = document.getElementById("level")!;
+  const timerEl = document.getElementById("timer")!;
 
   interface GameState {
     level: number;
@@ -28,8 +34,7 @@ import { Application } from "pixi.js";
   let currentState: GameState;
 
   function generateBaseColor(): number {
-    const color = Math.floor(Math.random() * 0xffffff);
-    return color;
+    return Math.floor(Math.random() * 0xffffff);
   }
 
   function getDifferentColor(base: number): number {
@@ -37,15 +42,26 @@ import { Application } from "pixi.js";
     return base + offset;
   }
 
+  function updateUI() {
+    scoreEl.textContent = `Score: ${currentState.score}`;
+    levelEl.textContent = `Level: ${currentState.level}`;
+    timerEl.textContent = `Time: ${currentState.timeLeft}s`;
+  }
+
   function showStartScreen(): void {
     app.stage.removeChildren();
+    scoreEl.textContent = "Score: 0";
+    levelEl.textContent = "Level: 1";
+    timerEl.textContent = "Time: 30s";
 
-    const titleText = new PIXI.Text("Kukukube Game", {
+    isOnStartScreen = true;
+
+    const titleText = new PIXI.Text("Cube Game", {
       fontSize: 36,
       fill: 0x333333,
       fontWeight: "bold",
     });
-    titleText.x = app.screen.width / 2 - titleText.width / 2;
+    titleText.x = CANVAS_WIDTH / 2 - titleText.width / 2;
     titleText.y = 100;
     app.stage.addChild(titleText);
 
@@ -56,7 +72,7 @@ import { Application } from "pixi.js";
         fill: 0x666666,
       },
     );
-    instructionText.x = app.screen.width / 2 - instructionText.width / 2;
+    instructionText.x = CANVAS_WIDTH / 2 - instructionText.width / 2;
     instructionText.y = 160;
     app.stage.addChild(instructionText);
 
@@ -64,10 +80,13 @@ import { Application } from "pixi.js";
     startButton.beginFill(0x4caf50);
     startButton.drawRoundedRect(0, 0, 200, 60, 10);
     startButton.endFill();
-    startButton.x = app.screen.width / 2 - 100;
+    startButton.x = CANVAS_WIDTH / 2 - 100;
     startButton.y = 250;
     startButton.interactive = true;
-    startButton.on("pointerdown", startGame);
+    startButton.on("pointerdown", () => {
+      isOnStartScreen = false;
+      startGame();
+    });
     app.stage.addChild(startButton);
 
     const startText = new PIXI.Text("START GAME", {
@@ -80,45 +99,26 @@ import { Application } from "pixi.js";
     app.stage.addChild(startText);
   }
 
-  function renderGameUI(): void {
-    const scoreText = new PIXI.Text(`Score: ${currentState.score}`, {
-      fontSize: 20,
-      fill: 0x333333,
-    });
-    scoreText.x = 10;
-    scoreText.y = 10;
-    app.stage.addChild(scoreText);
-
-    const timerText = new PIXI.Text(`Time: ${currentState.timeLeft}s`, {
-      fontSize: 20,
-      fill: 0x333333,
-    });
-    timerText.x = app.screen.width - timerText.width - 10;
-    timerText.y = 10;
-    app.stage.addChild(timerText);
-
-    const levelText = new PIXI.Text(`Level: ${currentState.level}`, {
-      fontSize: 20,
-      fill: 0x333333,
-    });
-    levelText.x = app.screen.width / 2 - levelText.width / 2;
-    levelText.y = 10;
-    app.stage.addChild(levelText);
-  }
+  let isOnStartScreen = false;
 
   function renderGrid(state: GameState): void {
-    const size = app.screen.width / state.gridSize - padding;
-    const startY = 60;
+    if (isOnStartScreen) return;
+    const cubeSize = Math.min(
+      (CANVAS_WIDTH - (state.gridSize + 1) * cubePadding) / state.gridSize,
+      (CANVAS_HEIGHT - (state.gridSize + 1) * cubePadding) / state.gridSize,
+    );
+    const startX = cubePadding;
+    const startY = cubePadding;
 
     for (let i = 0; i < state.gridSize ** 2; i++) {
       const box = new PIXI.Graphics();
       const color = i === state.oddIndex ? state.diffColor : state.baseColor;
       box.beginFill(color);
-      box.drawRect(0, 0, size, size);
+      box.drawRoundedRect(0, 0, cubeSize, cubeSize, 8);
       box.endFill();
 
-      box.x = (i % state.gridSize) * (size + padding);
-      box.y = startY + Math.floor(i / state.gridSize) * (size + padding);
+      box.x = startX + (i % state.gridSize) * (cubeSize + cubePadding);
+      box.y = startY + Math.floor(i / state.gridSize) * (cubeSize + cubePadding);
 
       box.interactive = true;
       box.on("pointerdown", () => handleClick(i === state.oddIndex));
@@ -133,27 +133,6 @@ import { Application } from "pixi.js";
       }
     }
   }
-
-  function startTimer(): void {
-    if (gameTimer) {
-      clearInterval(gameTimer);
-    }
-
-    gameTimer = setInterval(() => {
-      if (currentState && currentState.isPlaying) {
-        currentState.timeLeft--;
-
-        if (currentState.timeLeft <= 0) {
-          gameOver();
-        } else {
-          app.stage.removeChildren();
-          renderGameUI();
-          renderGrid(currentState);
-        }
-      }
-    }, 1000);
-  }
-
   function nextLevel(): void {
     app.stage.removeChildren();
     const level = currentState.level + 1;
@@ -161,76 +140,41 @@ import { Application } from "pixi.js";
     const baseColor = generateBaseColor();
     const diffColor = getDifferentColor(baseColor);
     const oddIndex = Math.floor(Math.random() * (gridSize * gridSize));
-
+  
     currentState = {
+      ...currentState,
       level,
       gridSize,
       baseColor,
       diffColor,
       oddIndex,
-      score: currentState.score + 10 + Math.floor(currentState.timeLeft / 2),
-      timeLeft: Math.max(10, 30 - level * 2),
+      score: currentState.score + 1,
       isPlaying: true,
     };
-
-    renderGameUI();
+  
+    updateUI();
     renderGrid(currentState);
-    startTimer();
   }
+  
 
-  function gameOver(): void {
+  function startTimer(): void {
     if (gameTimer) {
       clearInterval(gameTimer);
-      gameTimer = null;
     }
-
-    app.stage.removeChildren();
-
-    const gameOverText = new PIXI.Text("Game Over!", {
-      fontSize: 48,
-      fill: 0xff0000,
-    });
-    gameOverText.x = app.screen.width / 2 - gameOverText.width / 2;
-    gameOverText.y = 150;
-    app.stage.addChild(gameOverText);
-
-    const finalScoreText = new PIXI.Text(`Final Score: ${currentState.score}`, {
-      fontSize: 24,
-      fill: 0x333333,
-    });
-    finalScoreText.x = app.screen.width / 2 - finalScoreText.width / 2;
-    finalScoreText.y = 220;
-    app.stage.addChild(finalScoreText);
-
-    const levelText = new PIXI.Text(`Level Reached: ${currentState.level}`, {
-      fontSize: 20,
-      fill: 0x666666,
-    });
-    levelText.x = app.screen.width / 2 - levelText.width / 2;
-    levelText.y = 260;
-    app.stage.addChild(levelText);
-
-    const restartButton = new PIXI.Graphics();
-    restartButton.beginFill(0x2196f3);
-    restartButton.drawRoundedRect(0, 0, 150, 50, 8);
-    restartButton.endFill();
-    restartButton.x = app.screen.width / 2 - 75;
-    restartButton.y = 320;
-    restartButton.interactive = true;
-    restartButton.on("pointerdown", startGame);
-    app.stage.addChild(restartButton);
-
-    const restartText = new PIXI.Text("PLAY AGAIN", {
-      fontSize: 18,
-      fill: 0xffffff,
-      fontWeight: "bold",
-    });
-    restartText.x = restartButton.x + 75 - restartText.width / 2;
-    restartText.y = restartButton.y + 25 - restartText.height / 2;
-    app.stage.addChild(restartText);
+    gameTimer = setInterval(() => {
+      if (currentState && currentState.isPlaying) {
+        currentState.timeLeft--;
+        updateUI();
+        if (currentState.timeLeft <= 0) {
+          gameOver();
+        }
+      }
+    }, 1000);
   }
 
   function startGame(): void {
+    app.stage.removeChildren();
+    isOnStartScreen = false;
     currentState = {
       level: 1,
       gridSize: 2,
@@ -245,10 +189,61 @@ import { Application } from "pixi.js";
     currentState.oddIndex = Math.floor(
       Math.random() * currentState.gridSize ** 2,
     );
-
-    renderGameUI();
+    updateUI();
     renderGrid(currentState);
     startTimer();
+  }
+
+  function gameOver(): void {
+    if (gameTimer) {
+      clearInterval(gameTimer);
+      gameTimer = null;
+    }
+    currentState.isPlaying = false;
+    app.stage.removeChildren();
+
+    const gameOverText = new PIXI.Text("Game Over!", {
+      fontSize: 48,
+      fill: 0xff0000,
+    });
+    gameOverText.x = CANVAS_WIDTH / 2 - gameOverText.width / 2;
+    gameOverText.y = 150;
+    app.stage.addChild(gameOverText);
+
+    const finalScoreText = new PIXI.Text(`Final Score: ${currentState.score}`, {
+      fontSize: 24,
+      fill: 0x333333,
+    });
+    finalScoreText.x = CANVAS_WIDTH / 2 - finalScoreText.width / 2;
+    finalScoreText.y = 220;
+    app.stage.addChild(finalScoreText);
+
+    const levelText = new PIXI.Text(`Level Reached: ${currentState.level}`, {
+      fontSize: 20,
+      fill: 0x666666,
+    });
+    levelText.x = CANVAS_WIDTH / 2 - levelText.width / 2;
+    levelText.y = 260;
+    app.stage.addChild(levelText);
+
+    const restartButton = new PIXI.Graphics();
+    restartButton.beginFill(0x2196f3);
+    restartButton.drawRoundedRect(0, 0, 150, 50, 8);
+    restartButton.endFill();
+    restartButton.x = CANVAS_WIDTH / 2 - 75;
+    restartButton.y = 320;
+    restartButton.interactive = true;
+    restartButton.on("pointerdown", startGame);
+    app.stage.addChild(restartButton);
+
+    const restartText = new PIXI.Text("PLAY AGAIN", {
+      fontSize: 18,
+      fill: 0xffffff,
+      fontWeight: "bold",
+    });
+    restartText.x = restartButton.x + 75 - restartText.width / 2;
+    restartText.y = restartButton.y + 25 - restartText.height / 2;
+    app.stage.addChild(restartText);
   }
 
   showStartScreen();
