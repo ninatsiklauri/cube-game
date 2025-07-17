@@ -16,11 +16,9 @@ import { Application } from "pixi.js";
   document.getElementById("pixi-container")!.appendChild(app.canvas);
 
   const scoreEl = document.getElementById("score")!;
-  const levelEl = document.getElementById("level")!;
   const timerEl = document.getElementById("timer")!;
 
   interface GameState {
-    level: number;
     gridSize: number;
     baseColor: number;
     diffColor: number;
@@ -50,14 +48,12 @@ import { Application } from "pixi.js";
   }
   function updateUI() {
     scoreEl.textContent = `Score: ${currentState.score}`;
-    levelEl.textContent = `Level: ${currentState.level}`;
     timerEl.textContent = `Time: ${currentState.timeLeft}s`;
   }
 
   function showStartScreen(): void {
     app.stage.removeChildren();
     scoreEl.textContent = "Score: 0";
-    levelEl.textContent = "Level: 1";
     timerEl.textContent = "Time: 60s";
 
     isOnStartScreen = true;
@@ -140,24 +136,22 @@ import { Application } from "pixi.js";
 
     function handleClick(correct: boolean) {
       if (correct) {
-        nextLevel();
+        nextRound();
       } else {
         gameOver();
       }
     }
   }
 
-  function nextLevel(): void {
+  function nextRound(): void {
     app.stage.removeChildren();
-    const level = currentState.level + 1;
-    const gridSize = Math.min(2 + Math.floor(level / 3), 8);
+    const gridSize = 2 + Math.floor(currentState.score / 3);
     const baseColor = generateBaseColor();
-    const diffColor = getDifferentColor(baseColor, level);
+    const diffColor = getDifferentColor(baseColor, currentState.score + 1);
     const oddIndex = Math.floor(Math.random() * (gridSize * gridSize));
 
     currentState = {
       ...currentState,
-      level,
       gridSize,
       baseColor,
       diffColor,
