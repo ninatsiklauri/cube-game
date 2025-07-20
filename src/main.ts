@@ -145,7 +145,7 @@ import { Application } from "pixi.js";
 
   function nextRound(): void {
     app.stage.removeChildren();
-    const gridSize = 2 + Math.floor(currentState.score / 3);
+    const gridSize = Math.min(2 + Math.floor(currentState.score / 3), 8);
     const baseColor = generateBaseColor();
     const diffColor = getDifferentColor(baseColor, currentState.score + 1);
     const oddIndex = Math.floor(Math.random() * (gridSize * gridSize));
