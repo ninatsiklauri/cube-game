@@ -183,7 +183,6 @@ import { Application } from "pixi.js";
     app.stage.removeChildren();
     isOnStartScreen = false;
     currentState = {
-      level: 1,
       gridSize: 2,
       baseColor: generateBaseColor(),
       diffColor: 0,
@@ -192,11 +191,7 @@ import { Application } from "pixi.js";
       timeLeft: 60,
       isPlaying: true,
     };
-    const difficulty = Math.min(currentState.level, 25);
-    currentState.diffColor = getDifferentColor(
-      currentState.baseColor,
-      difficulty,
-    );
+    currentState.diffColor = getDifferentColor(currentState.baseColor, 1);
 
     currentState.oddIndex = Math.floor(
       Math.random() * currentState.gridSize ** 2,
@@ -229,14 +224,6 @@ import { Application } from "pixi.js";
     finalScoreText.x = CANVAS_WIDTH / 2 - finalScoreText.width / 2;
     finalScoreText.y = 220;
     app.stage.addChild(finalScoreText);
-
-    const levelText = new PIXI.Text(`Level Reached: ${currentState.level}`, {
-      fontSize: 20,
-      fill: 0x666666,
-    });
-    levelText.x = CANVAS_WIDTH / 2 - levelText.width / 2;
-    levelText.y = 260;
-    app.stage.addChild(levelText);
 
     const restartButton = new PIXI.Graphics();
     restartButton.beginFill(0x2196f3);
