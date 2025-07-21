@@ -1,5 +1,6 @@
 import * as PIXI from "pixi.js";
 import { Application } from "pixi.js";
+import { Player } from "./player";
 
 (async () => {
   const CANVAS_WIDTH = 500;
@@ -30,6 +31,8 @@ import { Application } from "pixi.js";
 
   let gameTimer: number | null = null;
   let currentState: GameState;
+  const player: Player = new Player();
+  let nameInputEl: HTMLInputElement | null = null;
 
   function generateBaseColor(): number {
     return Math.floor(Math.random() * 0xffffff);
@@ -58,6 +61,32 @@ import { Application } from "pixi.js";
 
     isOnStartScreen = true;
 
+    // Create or show the name input DOM element
+    if (!nameInputEl) {
+      nameInputEl = document.createElement("input");
+      nameInputEl.type = "text";
+      nameInputEl.placeholder = "Enter your name";
+      nameInputEl.id = "player-name-input";
+      nameInputEl.maxLength = 16;
+      nameInputEl.style.position = "absolute";
+      nameInputEl.style.left = `${app.canvas.getBoundingClientRect().left + CANVAS_WIDTH / 2 - 100}px`;
+      nameInputEl.style.top = `${app.canvas.getBoundingClientRect().top + 210}px`;
+      nameInputEl.style.width = "200px";
+      nameInputEl.style.height = "36px";
+      nameInputEl.style.fontSize = "20px";
+      nameInputEl.style.textAlign = "center";
+      nameInputEl.style.borderRadius = "8px";
+      nameInputEl.style.border = "1.5px solid #F06060";
+      nameInputEl.style.outline = "none";
+      nameInputEl.style.zIndex = "10";
+      nameInputEl.style.background = "#fff6f6";
+      nameInputEl.style.boxShadow = "0 2px 8px rgba(240,96,96,0.08)";
+      document.body.appendChild(nameInputEl);
+    } else {
+      nameInputEl.value = "";
+      nameInputEl.style.display = "block";
+    }
+
     const titleText = new PIXI.Text("Cube Game", {
       fontSize: 36,
       fill: 0x333333,
@@ -83,11 +112,21 @@ import { Application } from "pixi.js";
     startButton.drawRoundedRect(0, 0, 200, 60, 10);
     startButton.endFill();
     startButton.x = CANVAS_WIDTH / 2 - 100;
-    startButton.y = 250;
+    startButton.y = 270;
     startButton.interactive = true;
     startButton.on("pointerdown", () => {
-      isOnStartScreen = false;
-      startGame();
+      if (nameInputEl && nameInputEl.value.trim().length > 0) {
+        player.name = nameInputEl.value;
+        nameInputEl.style.display = "none";
+        isOnStartScreen = false;
+        startGame();
+      } else {
+        nameInputEl!.focus();
+        nameInputEl!.style.border = "2px solid #ff0000";
+        setTimeout(() => {
+          nameInputEl!.style.border = "1.5px solid #F06060";
+        }, 800);
+      }
     });
     app.stage.addChild(startButton);
 
@@ -180,6 +219,7 @@ import { Application } from "pixi.js";
   }
 
   function startGame(): void {
+    if (nameInputEl) nameInputEl.style.display = "none";
     app.stage.removeChildren();
     isOnStartScreen = false;
     currentState = {
