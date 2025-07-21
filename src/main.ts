@@ -61,7 +61,6 @@ import { Player } from "./player";
 
     isOnStartScreen = true;
 
-    // Create or show the name input DOM element
     if (!nameInputEl) {
       nameInputEl = document.createElement("input");
       nameInputEl.type = "text";
