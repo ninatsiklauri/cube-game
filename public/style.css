@@ -31,6 +31,7 @@ body {
 }
 
 #pixi-container {
+    position: relative;
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
@@ -105,7 +106,25 @@ body {
 #leaderboard td {
     color: #333;
 }
+.name-input {
+    width: 80%;
+    max-width: 240px;
+    height: 40px;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 8px;
+    border: 1.5px solid #F06060;
+    outline: none;
+    background: #fff6f6;
+    box-shadow: 0 2px 8px rgba(240, 96, 96, 0.08);
 
+    /* ცენტრირება კონტეინერის მიხედვით */
+    position: absolute;
+    top: 40%; /* აქამდე იყო 210px */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
 @media (max-width: 600px) {
     #game-ui {
         width: 100%;
@@ -141,5 +160,11 @@ body {
 
     #leaderboard-container h2 {
         font-size: 20px;
+    }
+    .name-input {
+        font-size: 16px;
+        height: 36px;
+        max-width: 90%;
+        top: 45%; /* ცოტათი ქვემოთ */
     }
 }
