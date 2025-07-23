@@ -475,7 +475,7 @@ body::before {
     display: flex !important;
     position: relative;
     width: 500px;
-    height: 100%;
+    height: 70%;
     border-radius: 24px;
     /* ...other desktop styles... */
   }
@@ -599,6 +599,10 @@ html {
   border-radius: 4px;
 }
 
+#leaderboard-close-btn{
+  display: none !important;
+}
+
 /* --- Modal overlay for leaderboard on mobile --- */
 @media (max-width: 1028px) {
   #leaderboard-modal-bg {
@@ -613,7 +617,7 @@ html {
     justify-content: center;
     align-items: center;
     transition: opacity 0.2s;
-    
+
   }
 
   #leaderboard-modal-bg.active {
@@ -728,7 +732,7 @@ html {
     box-shadow: 0 4px 16px rgba(79, 195, 247, 0.2);
     cursor: pointer;
     transition: background 0.2s;
-    
+
   }
 
   .mobile-leaderboard-btn.hide {
