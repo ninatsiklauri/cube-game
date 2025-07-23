@@ -67,6 +67,10 @@ if (typeof window !== "undefined") {
         { name: "Irakli", score: 28 },
         { name: "Mari", score: 25 },
         { name: "Luka", score: 21 },
+        { name: "Mari", score: 25 },
+        { name: "Luka", score: 21 },
+        { name: "Mari", score: 25 },
+        { name: "Luka", score: 21 },
       ]);
     } catch {
       // Table might not exist on some pages
