@@ -600,7 +600,7 @@ html {
 }
 
 #leaderboard-close-btn{
-  display: none !important;
+  display: none;
 }
 
 /* --- Modal overlay for leaderboard on mobile --- */
@@ -643,9 +643,10 @@ html {
   }
 
   #leaderboard-close-btn {
+    display: block;
     position: absolute;
-    top: 10px;
-    right: 16px;
+    top: -22px;
+    right: 0px;
     font-size: 26px;
     color: #4FC3F7;
     background: none;
