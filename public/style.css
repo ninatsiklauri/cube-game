@@ -530,7 +530,7 @@ html {
 /* Make tbody scrollable and fix its height for 7 rows */
 #leaderboard tbody {
   display: block;
-  max-height: 308px;
+  max-height: 380px;
   /* Adjust this value to fit 7 rows based on your row height */
   overflow-y: auto;
   width: 100%;
