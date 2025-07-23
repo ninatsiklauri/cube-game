@@ -10,7 +10,7 @@
 
 <body>
     <div id="app">
-        <div id="main-wrapper">
+      <div id="main-wrapper">
             <div id="left-panel">
               <div id="game-ui">
                 <span id="score">Score: 0</span>
@@ -19,23 +19,65 @@
               <div id="pixi-container"></div>
             </div>
           
-            <div id="leaderboard-container">
-              <h2>🏆 Leaderboard</h2>
-              <table id="leaderboard">
-                <thead>
-                  <tr>
-                    <th>Rank</th>
-                    <th>Name</th>
-                    <th>Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Dynamic rows go here -->
-                </tbody>
-              </table>
+            <div id="leaderboard-modal-bg">
+              <div id="leaderboard-container">
+                <button id="leaderboard-close-btn" aria-label="Close leaderboard">&times;</button>
+                <h2>🏆 Leaderboard</h2>
+                <table id="leaderboard">
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Name</th>
+                      <th>Score</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Dynamic rows go here -->
+                  </tbody>
+                </table>
+              </div>
             </div>
+            <button class="mobile-leaderboard-btn" id="show-leaderboard-btn" style="display:none;" aria-label="Show Leaderboard">🏆</button>
           </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      // Show leaderboard modal for mobile
+      function handleLeaderboardButton() {
+        const btn = document.getElementById('show-leaderboard-btn');
+        const modalBg = document.getElementById('leaderboard-modal-bg');
+        const leaderboard = document.getElementById('leaderboard-container');
+        const closeBtn = document.getElementById('leaderboard-close-btn');
+        if (!btn || !modalBg || !leaderboard || !closeBtn) return;
+        function checkWidth() {
+          if (window.innerWidth <= 1028) {
+            btn.style.display = 'block';
+            modalBg.classList.remove('active');
+            btn.classList.remove('hide');
+          } else {
+            btn.style.display = 'none';
+            modalBg.classList.remove('active');
+            btn.classList.remove('hide');
+          }
+        }
+        btn.onclick = function() {
+          modalBg.classList.add('active');
+          btn.classList.add('hide');
+        };
+        closeBtn.onclick = function(e) {
+          modalBg.classList.remove('active');
+          btn.classList.remove('hide');
+        };
+        modalBg.onclick = function(e) {
+          if (e.target === modalBg) {
+            modalBg.classList.remove('active');
+            btn.classList.remove('hide');
+          }
+        };
+        window.addEventListener('resize', checkWidth);
+        checkWidth();
+      }
+      window.addEventListener('DOMContentLoaded', handleLeaderboardButton);
+    </script>
 </body>
 </html>
