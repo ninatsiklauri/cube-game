@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
 import { Application } from "pixi.js";
 import { Player } from "./player";
+import "./leaderboard";
 
 (async () => {
   const CANVAS_WIDTH = 500;
@@ -15,7 +16,6 @@ import { Player } from "./player";
   });
 
   document.getElementById("pixi-container")!.appendChild(app.canvas);
-
   const scoreEl = document.getElementById("score")!;
   const timerEl = document.getElementById("timer")!;
 

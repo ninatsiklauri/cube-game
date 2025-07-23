@@ -357,6 +357,8 @@ body::before {
     font-weight: 400;
 }
 
+
+
         /* Responsive Design */
         @media (max-width: 768px) {
             #main-wrapper {
