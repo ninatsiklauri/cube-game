@@ -239,7 +239,6 @@ let leaderboard: Leaderboard | null = null;
     currentState.isPlaying = false;
     app.stage.removeChildren();
 
-    // Add score to leaderboard if player has a name
     if (player.name) {
       if (!leaderboard) {
         try {

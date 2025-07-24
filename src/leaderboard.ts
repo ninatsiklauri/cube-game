@@ -7,7 +7,7 @@ export interface LeaderboardEntry {
 
 export class Leaderboard {
   getEntries(): LeaderboardEntry[] {
-    return [...this.entries]; // return a copy of entries array
+    return [...this.entries];
   }
   private entries: LeaderboardEntry[] = [];
   private tableBody: HTMLTableSectionElement;
@@ -58,7 +58,6 @@ export class Leaderboard {
   }
 }
 
-// Fetch leaderboard data from API and update the leaderboard
 export async function fetchAndSetLeaderboard(leaderboard: Leaderboard) {
   try {
     const response = await fetch(
@@ -67,7 +66,6 @@ export async function fetchAndSetLeaderboard(leaderboard: Leaderboard) {
     if (!response.ok) throw new Error("Failed to fetch leaderboard");
     const data = await response.json();
 
-    // Expecting: [{ rank, name, score, time }]
     leaderboard.setEntries(Array.isArray(data) ? data : []);
   } catch (error) {
     console.error("Error fetching leaderboard:", error);

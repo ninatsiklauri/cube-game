@@ -7,7 +7,7 @@ export async function addScoreAndRefreshLeaderboard(
   time: number,
 ) {
   try {
-    await fetch("https://cube-game-back.vercel.app/api/score/score", {
+    await fetch("https://cube-game-back.vercel.app/api/score", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, score, time }),
@@ -19,7 +19,6 @@ export async function addScoreAndRefreshLeaderboard(
     console.error("Failed to add score to leaderboard");
   }
   await fetchAndSetLeaderboard(leaderboard);
-  // Find the player's rank in the updated leaderboard
   const entries = leaderboard.getEntries();
   const rank =
     entries.findIndex(
