@@ -259,7 +259,6 @@ let leaderboard: Leaderboard | null = null;
         );
       }
     }
-    
 
     const gameOverText = new PIXI.Text("Game Over!", {
       fontSize: 48,

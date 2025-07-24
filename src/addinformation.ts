@@ -7,7 +7,7 @@ export async function addScoreAndRefreshLeaderboard(
   time: number,
 ) {
   try {
-    await fetch("http://localhost:3000/score", {
+    await fetch("https://cube-game-backend.example.com/score", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, score, time }),

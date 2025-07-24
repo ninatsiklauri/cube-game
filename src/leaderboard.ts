@@ -1,10 +1,14 @@
 export interface LeaderboardEntry {
-  rank?: number; // optional, since your class re-ranks anyway
+  time: number;
+  rank?: number;
   name: string;
   score: number;
 }
 
 export class Leaderboard {
+  getEntries(): LeaderboardEntry[] {
+    return [...this.entries]; // return a copy of entries array
+  }
   private entries: LeaderboardEntry[] = [];
   private tableBody: HTMLTableSectionElement;
 
@@ -24,7 +28,7 @@ export class Leaderboard {
   addEntry(entry: LeaderboardEntry) {
     this.entries.push(entry);
     this.entries.sort((a, b) => b.score - a.score);
-    this.entries = this.entries.slice(0, 10); // Keep top 10
+    this.entries = this.entries.slice(0, 10);
     this.render();
   }
 
@@ -57,7 +61,9 @@ export class Leaderboard {
 // Fetch leaderboard data from API and update the leaderboard
 export async function fetchAndSetLeaderboard(leaderboard: Leaderboard) {
   try {
-    const response = await fetch("http://localhost:3000/leaderboard");
+    const response = await fetch(
+      "https://cube-game-backend.example.com/leaderboard",
+    );
     if (!response.ok) throw new Error("Failed to fetch leaderboard");
     const data = await response.json();
 
