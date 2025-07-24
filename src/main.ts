@@ -1,7 +1,10 @@
 import * as PIXI from "pixi.js";
 import { Application } from "pixi.js";
 import { Player } from "./player";
-import "./leaderboard";
+import { Leaderboard, fetchAndSetLeaderboard } from "./leaderboard";
+import { addScoreAndRefreshLeaderboard } from "./addinformation";
+
+let leaderboard: Leaderboard | null = null;
 
 (async () => {
   const CANVAS_WIDTH = 500;
@@ -228,13 +231,35 @@ import "./leaderboard";
     startTimer();
   }
 
-  function gameOver(): void {
+  async function gameOver(): Promise<void> {
     if (gameTimer) {
       clearInterval(gameTimer);
       gameTimer = null;
     }
     currentState.isPlaying = false;
     app.stage.removeChildren();
+
+    // Add score to leaderboard if player has a name
+    if (player.name) {
+      if (!leaderboard) {
+        try {
+          leaderboard = new Leaderboard();
+          await fetchAndSetLeaderboard(leaderboard);
+        } catch (err) {
+          console.error("Could not initialize leaderboard:", err);
+        }
+      }
+
+      if (leaderboard) {
+        await addScoreAndRefreshLeaderboard(
+          leaderboard,
+          player.name,
+          currentState.score,
+          currentState.timeLeft,
+        );
+      }
+    }
+    
 
     const gameOverText = new PIXI.Text("Game Over!", {
       fontSize: 48,
@@ -274,3 +299,14 @@ import "./leaderboard";
 
   showStartScreen();
 })();
+
+if (typeof window !== "undefined") {
+  window.addEventListener("DOMContentLoaded", () => {
+    try {
+      leaderboard = new Leaderboard();
+      fetchAndSetLeaderboard(leaderboard);
+    } catch (err) {
+      console.warn("Leaderboard not initialized at startup:", err);
+    }
+  });
+}

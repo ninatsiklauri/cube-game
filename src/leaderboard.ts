@@ -1,4 +1,5 @@
 export interface LeaderboardEntry {
+  rank?: number; // optional, since your class re-ranks anyway
   name: string;
   score: number;
 }
@@ -51,29 +52,19 @@ export class Leaderboard {
       this.tableBody.appendChild(row);
     });
   }
-
-  getEntries(): LeaderboardEntry[] {
-    return [...this.entries];
-  }
 }
 
-if (typeof window !== "undefined") {
-  window.addEventListener("DOMContentLoaded", () => {
-    try {
-      const leaderboard = new Leaderboard();
-      leaderboard.setEntries([
-        { name: "Ana", score: 36 },
-        { name: "Giorgi", score: 30 },
-        { name: "Irakli", score: 28 },
-        { name: "Mari", score: 25 },
-        { name: "Luka", score: 21 },
-        { name: "Mari", score: 25 },
-        { name: "Luka", score: 21 },
-        { name: "Mari", score: 25 },
-        { name: "Luka", score: 21 },
-      ]);
-    } catch {
-      // Table might not exist on some pages
-    }
-  });
+// Fetch leaderboard data from API and update the leaderboard
+export async function fetchAndSetLeaderboard(leaderboard: Leaderboard) {
+  try {
+    const response = await fetch("http://localhost:3000/leaderboard");
+    if (!response.ok) throw new Error("Failed to fetch leaderboard");
+    const data = await response.json();
+
+    // Expecting: [{ rank, name, score, time }]
+    leaderboard.setEntries(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Error fetching leaderboard:", error);
+    leaderboard.setEntries([]);
+  }
 }
