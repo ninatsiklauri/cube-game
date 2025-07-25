@@ -60,7 +60,9 @@ export class Leaderboard {
 
 export async function fetchAndSetLeaderboard(leaderboard: Leaderboard) {
   try {
-    const response = await fetch("http://localhost:3000/leaderboard");
+    const response = await fetch(
+      "https://cube-game-back.vercel.app/leaderboard",
+    );
     if (!response.ok) throw new Error("Failed to fetch leaderboard");
     const data = await response.json();
 
