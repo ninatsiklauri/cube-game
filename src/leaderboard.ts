@@ -25,13 +25,6 @@ export class Leaderboard {
     this.render();
   }
 
-  addEntry(entry: LeaderboardEntry) {
-    this.entries.push(entry);
-    this.entries.sort((a, b) => b.score - a.score);
-    this.entries = this.entries.slice(0, 10);
-    this.render();
-  }
-
   clear() {
     this.entries = [];
     this.render();
@@ -65,10 +58,53 @@ export async function fetchAndSetLeaderboard(leaderboard: Leaderboard) {
     );
     if (!response.ok) throw new Error("Failed to fetch leaderboard");
     const data = await response.json();
-
     leaderboard.setEntries(Array.isArray(data) ? data : []);
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
     leaderboard.setEntries([]);
   }
+}
+
+// ===============================
+// Frontend: game.ts (example usage)
+// ===============================
+
+function getOrAskPlayerName(): string | null {
+  let name = localStorage.getItem("playerName");
+
+  if (!name) {
+    name = prompt("Enter your name:")?.trim() || "";
+    if (name) {
+      localStorage.setItem("playerName", name);
+    } else {
+      alert("Name is required to play.");
+      return null;
+    }
+  }
+
+  return name;
+}
+
+export async function submitScore(score: number) {
+  const name = getOrAskPlayerName();
+  if (!name) return;
+
+  try {
+    const res = await fetch(
+      "https://cube-game-back.vercel.app/api/leaderboard",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, score }),
+      },
+    );
+    if (!res.ok) throw new Error("Failed to submit score");
+  } catch (err) {
+    console.error("Failed to add score to leaderboard", err);
+  }
+}
+
+export function resetPlayerName() {
+  localStorage.removeItem("playerName");
+  location.reload();
 }
