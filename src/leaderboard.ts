@@ -6,11 +6,11 @@ export interface LeaderboardEntry {
 }
 
 export class Leaderboard {
-  getEntries(): LeaderboardEntry[] {
-    return [...this.entries];
-  }
   private entries: LeaderboardEntry[] = [];
   private tableBody: HTMLTableSectionElement;
+
+  // Track current player's name for highlighting
+  private currentPlayerName: string | null = null;
 
   constructor(tableSelector: string = "#leaderboard tbody") {
     const table = document.querySelector(tableSelector);
@@ -18,6 +18,10 @@ export class Leaderboard {
       throw new Error(`Leaderboard table body not found: ${tableSelector}`);
     }
     this.tableBody = table as HTMLTableSectionElement;
+  }
+
+  getEntries(): LeaderboardEntry[] {
+    return [...this.entries];
   }
 
   setEntries(entries: LeaderboardEntry[]) {
@@ -30,6 +34,10 @@ export class Leaderboard {
     this.render();
   }
 
+  setCurrentPlayerName(name: string | null) {
+    this.currentPlayerName = name;
+  }
+
   render() {
     const table = this.tableBody.parentElement as HTMLTableElement;
     if (table) {
@@ -38,6 +46,7 @@ export class Leaderboard {
         thead.innerHTML = `<tr><th>Rank</th><th>Name</th><th>Score</th></tr>`;
       }
     }
+
     this.tableBody.innerHTML = "";
     this.entries.forEach((entry, idx) => {
       const row = document.createElement("tr");
@@ -46,6 +55,19 @@ export class Leaderboard {
         <td>${entry.name}</td>
         <td>${entry.score}</td>
       `;
+
+      const isCurrentPlayer =
+        this.currentPlayerName &&
+        entry.name.toLowerCase() === this.currentPlayerName.toLowerCase();
+
+      if (isCurrentPlayer) {
+        for (const cell of row.children) {
+          (cell as HTMLElement).style.backgroundColor = "#444"; // Dark background
+          (cell as HTMLElement).style.color = "#eee";
+          (cell as HTMLElement).style.fontWeight = "bold";
+        }
+      }
+
       this.tableBody.appendChild(row);
     });
   }
@@ -64,10 +86,6 @@ export async function fetchAndSetLeaderboard(leaderboard: Leaderboard) {
     leaderboard.setEntries([]);
   }
 }
-
-// ===============================
-// Frontend: game.ts (example usage)
-// ===============================
 
 function getOrAskPlayerName(): string | null {
   let name = localStorage.getItem("playerName");

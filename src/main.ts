@@ -37,6 +37,9 @@ let leaderboard: Leaderboard | null = null;
   const player: Player = new Player();
   let nameInputEl: HTMLInputElement | null = null;
 
+  // Declare isOnStartScreen here so it’s accessible everywhere
+  let isOnStartScreen = false;
+
   function generateBaseColor(): number {
     return Math.floor(Math.random() * 0xffffff);
   }
@@ -52,6 +55,7 @@ let leaderboard: Leaderboard | null = null;
 
     return (r << 16) | (g << 8) | b;
   }
+
   function updateUI() {
     scoreEl.textContent = `Score: ${currentState.score}`;
     timerEl.textContent = `Time: ${currentState.timeLeft}s`;
@@ -61,22 +65,17 @@ let leaderboard: Leaderboard | null = null;
     app.stage.removeChildren();
     scoreEl.textContent = "Score: 0";
     timerEl.textContent = "Time: 60s";
-
     isOnStartScreen = true;
-
-    if (!nameInputEl) {
-      nameInputEl = document.createElement("input");
-      nameInputEl.type = "text";
-      nameInputEl.placeholder = "Enter your name";
-      nameInputEl.id = "player-name-input";
-      nameInputEl.maxLength = 16;
-      nameInputEl.className = "name-input";
-      document.getElementById("pixi-container")!.appendChild(nameInputEl);
-    } else {
-      nameInputEl.value = "";
-      nameInputEl.style.display = "block";
+    const savedName = localStorage.getItem("playerName");
+    if (savedName) {
+      player.name = savedName;
     }
-
+    if (nameInputEl) {
+      if (nameInputEl.parentElement) {
+        nameInputEl.parentElement.removeChild(nameInputEl);
+      }
+      nameInputEl = null;
+    }
     const titleText = new PIXI.Text("Cube Game", {
       fontSize: 36,
       fill: 0x333333,
@@ -85,7 +84,6 @@ let leaderboard: Leaderboard | null = null;
     titleText.x = CANVAS_WIDTH / 2 - titleText.width / 2;
     titleText.y = 100;
     app.stage.addChild(titleText);
-
     const instructionText = new PIXI.Text(
       "Find the different colored square!",
       {
@@ -96,30 +94,81 @@ let leaderboard: Leaderboard | null = null;
     instructionText.x = CANVAS_WIDTH / 2 - instructionText.width / 2;
     instructionText.y = 160;
     app.stage.addChild(instructionText);
-
+    if (!savedName) {
+      // Show input only if no saved name
+      nameInputEl = document.createElement("input");
+      nameInputEl.type = "text";
+      nameInputEl.placeholder = "Enter your name";
+      nameInputEl.id = "player-name-input";
+      nameInputEl.maxLength = 16;
+      nameInputEl.className = "name-input";
+      document.getElementById("pixi-container")!.appendChild(nameInputEl);
+    } else {
+      // Show the saved player name as plain text instead of input
+      const nameText = new PIXI.Text(`Player: ${savedName}`, {
+        fontSize: 20,
+        fill: 0x333333,
+        fontWeight: "bold",
+      });
+      nameText.x = CANVAS_WIDTH / 2 - nameText.width / 2;
+      nameText.y = 220;
+      app.stage.addChild(nameText);
+    }
     const startButton = new PIXI.Graphics();
     startButton.beginFill(0x4caf50);
     startButton.drawRoundedRect(0, 0, 200, 60, 10);
     startButton.endFill();
     startButton.x = CANVAS_WIDTH / 2 - 100;
-    startButton.y = 270;
+    startButton.y = savedName ? 270 : 320;
     startButton.interactive = true;
-    startButton.on("pointerdown", () => {
-      if (nameInputEl && nameInputEl.value.trim().length > 0) {
-        player.name = nameInputEl.value;
-        nameInputEl.style.display = "none";
+    startButton.on("pointerdown", async () => {
+      if (savedName) {
         isOnStartScreen = false;
+        if (nameInputEl) {
+          nameInputEl.style.display = "none";
+        }
         startGame();
       } else {
-        nameInputEl!.focus();
-        nameInputEl!.style.border = "2px solid #ff0000";
-        setTimeout(() => {
-          nameInputEl!.style.border = "1.5px solid #F06060";
-        }, 800);
+        if (nameInputEl && nameInputEl.value.trim().length > 0) {
+          const name = nameInputEl.value.trim();
+          try {
+            const response = await fetch(
+              "https://cube-game-back.vercel.app/api/leaderboard",
+            );
+            if (!response.ok) throw new Error("Failed to fetch leaderboard");
+            const leaderboardData = await response.json();
+            const nameExists = leaderboardData.some(
+              (entry: { name: string }) =>
+                entry.name.toLowerCase() === name.toLowerCase(),
+            );
+            if (nameExists) {
+              alert("This name is already taken. Please choose another name.");
+              nameInputEl!.focus();
+              nameInputEl!.style.border = "2px solid #ff0000";
+              setTimeout(() => {
+                nameInputEl!.style.border = "1.5px solid #F06060";
+              }, 800);
+              return;
+            }
+            player.name = name;
+            localStorage.setItem("playerName", name);
+            nameInputEl.style.display = "none";
+            isOnStartScreen = false;
+            startGame();
+          } catch (error) {
+            console.error("Error checking name uniqueness:", error);
+            alert("Error checking name uniqueness. Please try again.");
+          }
+        } else {
+          nameInputEl!.focus();
+          nameInputEl!.style.border = "2px solid #ff0000";
+          setTimeout(() => {
+            nameInputEl!.style.border = "1.5px solid #F06060";
+          }, 800);
+        }
       }
     });
     app.stage.addChild(startButton);
-
     const startText = new PIXI.Text("START GAME", {
       fontSize: 24,
       fill: 0xffffff,
@@ -129,8 +178,6 @@ let leaderboard: Leaderboard | null = null;
     startText.y = startButton.y + 30 - startText.height / 2;
     app.stage.addChild(startText);
   }
-
-  let isOnStartScreen = false;
 
   function renderGrid(state: GameState): void {
     if (isOnStartScreen) return;
