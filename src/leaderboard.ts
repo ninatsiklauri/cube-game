@@ -9,7 +9,6 @@ export class Leaderboard {
   private entries: LeaderboardEntry[] = [];
   private tableBody: HTMLTableSectionElement;
 
-  // Track current player's name for highlighting
   private currentPlayerName: string | null = null;
 
   constructor(tableSelector: string = "#leaderboard tbody") {
