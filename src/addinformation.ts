@@ -7,7 +7,7 @@ export async function addScoreAndRefreshLeaderboard(
   time: number,
 ) {
   try {
-    await fetch("https://cube-game-back.vercel.app/api/score", {
+    await fetch("https://cube-game-back.vercel.app/api/leaderboard", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, score, time }),
