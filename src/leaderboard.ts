@@ -61,7 +61,7 @@ export class Leaderboard {
 
       if (isCurrentPlayer) {
         for (const cell of row.children) {
-          (cell as HTMLElement).style.backgroundColor = "#444"; // Dark background
+          (cell as HTMLElement).style.backgroundColor = "#444";
           (cell as HTMLElement).style.color = "#eee";
           (cell as HTMLElement).style.fontWeight = "bold";
         }
