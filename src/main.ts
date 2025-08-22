@@ -181,40 +181,43 @@ let leaderboard: Leaderboard | null = null;
 
   function renderGrid(state: GameState): void {
     if (isOnStartScreen) return;
-
     const cubeSize = Math.min(
       (CANVAS_WIDTH - (state.gridSize + 1) * cubePadding) / state.gridSize,
       (CANVAS_HEIGHT - (state.gridSize + 1) * cubePadding) / state.gridSize,
     );
     const startX = cubePadding;
     const startY = cubePadding;
-
+    const boxes: PIXI.Graphics[] = [];
     for (let i = 0; i < state.gridSize ** 2; i++) {
       const isOdd = i === state.oddIndex;
       const color = isOdd ? state.diffColor : state.baseColor;
-
       const x = startX + (i % state.gridSize) * (cubeSize + cubePadding);
       const y =
         startY + Math.floor(i / state.gridSize) * (cubeSize + cubePadding);
-
       const box = new PIXI.Graphics();
       box.beginFill(color, 1);
       box.drawRoundedRect(0, 0, cubeSize, cubeSize, 8);
       box.endFill();
-
       box.x = x;
       box.y = y;
       box.interactive = true;
       box.on("pointerdown", () => handleClick(isOdd));
-
+      boxes.push(box);
       app.stage.addChild(box);
     }
-
     function handleClick(correct: boolean) {
       if (correct) {
         nextRound();
       } else {
-        gameOver();
+        const correctBox = boxes[state.oddIndex];
+        correctBox.clear();
+        correctBox.beginFill(0x00ff00, 1);
+        correctBox.drawRoundedRect(0, 0, cubeSize, cubeSize, 8);
+        correctBox.endFill();
+        boxes.forEach((b) => (b.interactive = false));
+        setTimeout(() => {
+          gameOver();
+        }, 2000);
       }
     }
   }
