@@ -37,7 +37,6 @@ let leaderboard: Leaderboard | null = null;
   const player: Player = new Player();
   let nameInputEl: HTMLInputElement | null = null;
 
-  
   let isOnStartScreen = false;
 
   function generateBaseColor(): number {
@@ -95,7 +94,6 @@ let leaderboard: Leaderboard | null = null;
     instructionText.y = 160;
     app.stage.addChild(instructionText);
     if (!savedName) {
-      
       nameInputEl = document.createElement("input");
       nameInputEl.type = "text";
       nameInputEl.placeholder = "Enter your name";
@@ -104,7 +102,6 @@ let leaderboard: Leaderboard | null = null;
       nameInputEl.className = "name-input";
       document.getElementById("pixi-container")!.appendChild(nameInputEl);
     } else {
-      
       const nameText = new PIXI.Text(`Player: ${savedName}`, {
         fontSize: 20,
         fill: 0x333333,
